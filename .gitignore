@@ -1,0 +1,21 @@
+# Local-only project docs (not committed)
+CLAUDE.md
+PLAN.md
+ASSIGNMENT.md
+
+# Secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+.claude/settings.local.json
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local data
+chroma_db/
+.claude/
