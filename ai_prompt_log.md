@@ -29,3 +29,11 @@
 - **Generated:** `src/reranker.py` (CrossEncoder `ms-marco-MiniLM-L-6-v2`, stable sigmoid on raw logits, `gate()` at 0.55 on top score, K2=3, `rank_shifts()`); `tests/test_reranker.py` (Test 2 sigmoid bounds, Test 3 gating 0.42 vs 0.81).
 - **Bugs/issues:** none observed. Risk noted while writing: sentence-transformers' `CrossEncoder` can apply a default activation from the model config, so `predict()` is not guaranteed to return raw logits; sigmoid on top would double-squash.
 - **Fixes:** Constructed `CrossEncoder` with `activation_fn=torch.nn.Identity()` so sigmoid is applied exactly once.
+
+## Phase 5: Rewriter
+- **Prompt:** "next"
+- **Generated:** `src/rewriter.py` (LLM rewrite with history, 10 s timeout, no retries; empty query raises `EmptyQueryError`; any LLM failure returns the original query; flags and digit-bearing tokens like `CHG-12345` / `v3.4.0` are re-appended if the LLM dropped them); `tests/test_rewriter.py` (Test 1, skipped without an API key).
+- **Bugs/issues:** First run: Test 1 skipped (no API key set). User then asked to switch from OpenAI to Anthropic.
+- **Fixes:** Rewriter switched to the Anthropic Messages API (`claude-haiku-5-5`, override via `ANTHROPIC_REWRITE_MODEL`); test now checks `ANTHROPIC_API_KEY`.
+- **Bug 2:** Test 1 failed: rewriter returned the original query. The fail-open `except` hid the cause; reproducing the exact call showed `TypeError: Messages.create() got an unexpected keyword argument 'temperature'` (installed `anthropic` SDK).
+- **Fix 2:** Removed `temperature=0` from the rewriter call.
