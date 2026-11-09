@@ -1,0 +1,20 @@
+[project]
+name = "production-rag-pipeline"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Violet Nguyen" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "chromadb>=1.5.9",
+    "duckduckgo-search>=8.1.1",
+    "openai>=3.46.0",
+    "pydantic>=2.14.3",
+    "pytest>=9.2.0",
+    "python-dotenv>=1.2.4",
+    "sentence-transformers>=6.2.0",
+    "streamlit>=1.67.0",
+    "tavily-python>=0.8.5",
+]
