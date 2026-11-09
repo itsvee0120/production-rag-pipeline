@@ -49,3 +49,9 @@
 - **Generated:** `src/generator.py` (Anthropic `claude-sonnet-5-5`, override via `ANTHROPIC_GENERATE_MODEL`; numbered sources, internal chunks in `<internal_doc>`, web chunks re-sanitized and wrapped in `<external_web_source>`; system prompt enforces grounding, inline `[n]` citations, and treats web content as data only; `citations[n-1]` maps `[n]` to chunk ID/URL; no LLM call when there are no chunks). `tests/test_pipeline_qa.py` with Test 6 (malicious snippet incl. a fake closing delimiter; asserts no "HACKED", answer still cites the legit source).
 - **Bugs/issues:** none found.
 - **Fixes:** none.
+
+## Phase 8: Pipeline wiring + QA
+- **Prompt:** "next"
+- **Generated:** `src/pipeline.py` (rewrite -> retrieve K1=20 -> re-rank -> gate on top sigmoid score -> top K2=3 internal chunks or web search -> generate; returns `PipelineResult` with stage 1, re-ranked list, rank shifts, status and context for the UI). Tests 4 (in-domain VPC query routes `INTERNAL_RAG`, internal chunk IDs cited) and 5 (AWS outage query routes `WEB_FALLBACK`, citations are valid http(s) URLs) in `tests/test_pipeline_qa.py`.
+- **Bugs/issues:** none found.
+- **Fixes:** none.
