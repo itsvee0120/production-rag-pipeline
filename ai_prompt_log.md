@@ -17,3 +17,9 @@
 - **Generated:** 6 fictional internal docs in `docs/`: architecture, deployment runbook, VPC/networking (incl. isolated staging VPC), billing policy, Kubernetes worker nodes (system requirements), Terraform modules (current vs legacy versions). Written to cover the assignment's test queries (staging VPC, worker node requirements, older terraform modules) and include exact flags/IDs (`--isolated`, `CHG-XXXXX`, `INV-2026-004213`) for keyword-preservation checks.
 - **Bugs/issues:** none found.
 - **Fixes:** none.
+
+## Phase 3: Schemas + retriever
+- **Prompt:** "next, let's move through thing quickly"
+- **Generated:** `src/schemas.py` (`RetrievedChunk`, `RAGResponse`); `src/retriever.py` (markdown split per `##` section, ChromaDB persistent collection with cosine space, `all-MiniLM-L6-v2`, K1=20, distance converted to similarity; indexing upserts only new/changed chunks by SHA-256 hash and deletes stale ones, so restarts don't re-embed or duplicate).
+- **Bugs/issues:** none found.
+- **Fixes:** none.
