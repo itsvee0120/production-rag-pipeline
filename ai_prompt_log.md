@@ -55,3 +55,14 @@
 - **Generated:** `src/pipeline.py` (rewrite -> retrieve K1=20 -> re-rank -> gate on top sigmoid score -> top K2=3 internal chunks or web search -> generate; returns `PipelineResult` with stage 1, re-ranked list, rank shifts, status and context for the UI). Tests 4 (in-domain VPC query routes `INTERNAL_RAG`, internal chunk IDs cited) and 5 (AWS outage query routes `WEB_FALLBACK`, citations are valid http(s) URLs) in `tests/test_pipeline_qa.py`.
 - **Bugs/issues:** none found.
 - **Fixes:** none.
+
+## Phase 9: AI audit (four RAG failure modes)
+- **Prompt:** "next"
+- **Note:** The code was generated with the CLAUDE.md rules in context, so the safeguards were built in from the start rather than added to a naive draft. This audit checks the generated code as it stands.
+
+| Failure mode | Where | Finding | Refactor |
+|---|---|---|---|
+| Logit scaling | `src/reranker.py` | Sigmoid applied to logits; `gate()` compares top sigmoid score to 0.55. Risk: `CrossEncoder` may apply a config default activation, causing a double sigmoid. | `CrossEncoder(..., activation_fn=torch.nn.Identity())` (Phase 4). Tests 2, 3 cover bounds and gating. |
+| Web prompt injection | `src/web_fallback.py`, `src/generator.py` | Snippets sanitized (HTML, control chars, fake delimiters) and wrapped in `<external_web_source>`; system prompt says data only. **Gap found:** the URL was put into `url="..."` without escaping quotes, so a crafted URL could break out of the attribute. | `html.escape(..., quote=True)` on the URL attribute. Test 6 covers the injected-instruction case. |
+| Rewriter failure | `src/rewriter.py` | Empty query raises `EmptyQueryError`; 10 s timeout, no retries, falls back to the original query; flags/IDs re-appended if dropped. **Gap found (observed in Phase 5):** the bare `except` silently hid a real bug (`temperature` TypeError), making Test 1 fail with no clue why. | Log a warning with the exception before falling back. |
+| Vector duplication | `src/retriever.py` | Chunks upserted only when their SHA-256 hash changed; stale IDs deleted. Verified in Phase 3: `count 41 reembedded 0`. | None needed. |

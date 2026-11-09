@@ -1,3 +1,4 @@
+import html
 import os
 from typing import List, Literal, Optional
 
@@ -27,7 +28,7 @@ def build_context(chunks: List[RetrievedChunk]) -> str:
     for i, c in enumerate(chunks, 1):
         if c.source == "web":
             parts.append(
-                f'<external_web_source id="{i}" url="{sanitize(c.chunk_id)}">\n{sanitize(c.content)}\n</external_web_source>'
+                f'<external_web_source id="{i}" url="{html.escape(sanitize(c.chunk_id), quote=True)}">\n{sanitize(c.content)}\n</external_web_source>'
             )
         else:
             parts.append(f'<internal_doc id="{i}" chunk_id="{c.chunk_id}">\n{c.content}\n</internal_doc>')

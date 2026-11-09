@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from typing import List, Optional
@@ -6,6 +7,7 @@ from anthropic import Anthropic
 from dotenv import load_dotenv
 
 load_dotenv()
+log = logging.getLogger(__name__)
 
 MODEL = os.getenv("ANTHROPIC_REWRITE_MODEL", "claude-haiku-5-5")
 TIMEOUT_S = 10.0
@@ -48,7 +50,8 @@ def rewrite(query: str, history: Optional[List[str]] = None, client: Optional[An
             ],
         )
         rewritten = "".join(b.text for b in resp.content if b.type == "text").strip()
-    except Exception:
+    except Exception as e:
+        log.warning("Rewriter failed, using original query: %r", e)
         return query  # fail open: timeout, network, auth, etc.
 
     if not rewritten:
