@@ -66,3 +66,9 @@
 | Web prompt injection | `src/web_fallback.py`, `src/generator.py` | Snippets sanitized (HTML, control chars, fake delimiters) and wrapped in `<external_web_source>`; system prompt says data only. **Gap found:** the URL was put into `url="..."` without escaping quotes, so a crafted URL could break out of the attribute. | `html.escape(..., quote=True)` on the URL attribute. Test 6 covers the injected-instruction case. |
 | Rewriter failure | `src/rewriter.py` | Empty query raises `EmptyQueryError`; 10 s timeout, no retries, falls back to the original query; flags/IDs re-appended if dropped. **Gap found (observed in Phase 5):** the bare `except` silently hid a real bug (`temperature` TypeError), making Test 1 fail with no clue why. | Log a warning with the exception before falling back. |
 | Vector duplication | `src/retriever.py` | Chunks upserted only when their SHA-256 hash changed; stale IDs deleted. Verified in Phase 3: `count 41 reembedded 0`. | None needed. |
+
+## Phase 10: UI
+- **Prompt:** "next"
+- **Generated:** `src/app.py` (Streamlit): query form, multi-turn toggle with session history and clear button; sidebar with transformed query, route badge (🟢 INTERNAL_RAG / 🟠 WEB_FALLBACK), confidence metric + progress bar vs 0.55; answer with one popover per `[n]` source (web URL link or chunk ID, content shown as plain text so untrusted web text is never rendered as markdown); collapsible Stage 1 top-20 table (cosine similarity) and Stage 2 top-5 table with stage-1 rank and ↑/↓ shift. Pipeline cached with `st.cache_resource`.
+- **Bugs/issues (caught while writing, not observed at runtime):** `streamlit run src/app.py` puts `src/` (not the project root) on `sys.path`, so `from src...` imports would fail. Also `use_container_width` is deprecated in the installed Streamlit.
+- **Fixes:** Insert project root into `sys.path` at the top of `app.py`; removed `use_container_width` (default width is already `stretch`).
