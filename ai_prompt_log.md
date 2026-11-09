@@ -43,3 +43,9 @@
 - **Generated:** `src/web_fallback.py` (Tavily if `TAVILY_API_KEY` is set to a real value, else DuckDuckGo; top 3 results as `RetrievedChunk(source="web", chunk_id=URL)`; snippets sanitized: HTML unescaped and stripped, `<external_web_source>` look-alikes removed so a snippet can't break out of the delimiters, control chars removed, truncated to 800 chars; non-http URLs dropped; returns `[]` on search failure).
 - **Bugs/issues:** Smoke test with DuckDuckGo for "AWS us-east-1 outage root cause" returned irrelevant results (AWS homepage, console, American Welding Society) and a `duckduckgo_search` -> `ddgs` rename warning.
 - **Fixes:** User set a real `TAVILY_API_KEY`; no code change. Rerun returned 3 relevant outage write-ups with URLs.
+
+## Phase 7: Generator
+- **Prompt:** "next"
+- **Generated:** `src/generator.py` (Anthropic `claude-sonnet-5-5`, override via `ANTHROPIC_GENERATE_MODEL`; numbered sources, internal chunks in `<internal_doc>`, web chunks re-sanitized and wrapped in `<external_web_source>`; system prompt enforces grounding, inline `[n]` citations, and treats web content as data only; `citations[n-1]` maps `[n]` to chunk ID/URL; no LLM call when there are no chunks). `tests/test_pipeline_qa.py` with Test 6 (malicious snippet incl. a fake closing delimiter; asserts no "HACKED", answer still cites the legit source).
+- **Bugs/issues:** none found.
+- **Fixes:** none.
