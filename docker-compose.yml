@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8501:8501"
+    env_file: .env  # API keys injected at runtime, never baked into the image
+    volumes:
+      - chroma_data:/app/chroma_db  # index persists across restarts (no re-embedding)
+      - hf_cache:/app/.cache/huggingface  # models downloaded once
+
+volumes:
+  chroma_data:
+  hf_cache:

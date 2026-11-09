@@ -82,3 +82,9 @@
 - **Decision:** Keep 0.55 (assignment spec). Rationale: scores are strongly bimodal so 0.55 sits in a wide gap; 0.80 removed the one hard-negative false internal on this set, but 25 queries is too small to justify deviating from the spec. Both misses recorded as known limitations.
 - **Bugs/issues:** Re-ranker miss on the `--canary` flag query (not fixable by threshold).
 - **Fixes:** none (documented as a limitation).
+
+## Phase 12: Deployment (Option B, Docker)
+- **Prompt:** "do just B"
+- **Generated:** `Dockerfile` (python:3.11-slim, uv, `uv sync --frozen --no-dev` from the lockfile, copies `src/` and `docs/`, Streamlit on 0.0.0.0:8501); `docker-compose.yml` (port 8501, `.env` loaded at runtime via `env_file`, named volumes for `chroma_db` and the Hugging Face model cache); `.dockerignore` (excludes `.env*`, local-only docs, `.git`, `.venv`, `chroma_db`, tests).
+- **Bugs/issues:** First `docker compose up --build` was extremely slow (image unpack step ran 4000+ s): the locked Linux `torch` wheel pulls multi-GB CUDA libraries the app never uses.
+- **Fixes:** Pinned `torch` to the PyTorch CPU index via `[tool.uv.sources]` / `[[tool.uv.index]]` in `pyproject.toml` and added `torch` as a direct dependency. Rebuild finished in ~6.5 min; container runs and the UI works. (Local environment issues along the way, not code: C: drive full, Docker disk moved to D:, port 8501 held by another project's container.)
