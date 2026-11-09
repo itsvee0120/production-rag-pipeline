@@ -72,3 +72,13 @@
 - **Generated:** `src/app.py` (Streamlit): query form, multi-turn toggle with session history and clear button; sidebar with transformed query, route badge (🟢 INTERNAL_RAG / 🟠 WEB_FALLBACK), confidence metric + progress bar vs 0.55; answer with one popover per `[n]` source (web URL link or chunk ID, content shown as plain text so untrusted web text is never rendered as markdown); collapsible Stage 1 top-20 table (cosine similarity) and Stage 2 top-5 table with stage-1 rank and ↑/↓ shift. Pipeline cached with `st.cache_resource`.
 - **Bugs/issues (caught while writing, not observed at runtime):** `streamlit run src/app.py` puts `src/` (not the project root) on `sys.path`, so `from src...` imports would fail. Also `use_container_width` is deprecated in the installed Streamlit.
 - **Fixes:** Insert project root into `sys.path` at the top of `app.py`; removed `use_container_width` (default width is already `stretch`).
+
+## Phase 11: Threshold calibration
+- **Prompt:** "next phase"
+- **Generated:** `src/calibrate.py`: 25 labeled queries (15 in-domain, 10 out-of-domain incl. near-domain hard negatives), top sigmoid score per query via retriever + re-ranker (no LLM, no rewrite), sweep of thresholds 0.3-0.9 counting false fallbacks (in-domain sent to web) and false internals (out-of-domain answered from docs).
+- **Results:** In-domain scores 0.952-1.000 except one; out-of-domain 0.000-0.033 except one. At 0.55: 1/15 false fallback, 1/10 false internal. At 0.80-0.90: 1/15 false fallback, 0/10 false internal.
+  - False internal: "How do I configure a VPC in Google Cloud Platform?" scored 0.739 (matched `03_vpc_networking#2`).
+  - False fallback at every threshold: "What does the --canary flag do in infractl?" scored 0.014 (re-ranker under-scores the flags chunk).
+- **Decision:** Keep 0.55 (assignment spec). Rationale: scores are strongly bimodal so 0.55 sits in a wide gap; 0.80 removed the one hard-negative false internal on this set, but 25 queries is too small to justify deviating from the spec. Both misses recorded as known limitations.
+- **Bugs/issues:** Re-ranker miss on the `--canary` flag query (not fixable by threshold).
+- **Fixes:** none (documented as a limitation).
