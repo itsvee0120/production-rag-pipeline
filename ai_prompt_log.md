@@ -23,3 +23,9 @@
 - **Generated:** `src/schemas.py` (`RetrievedChunk`, `RAGResponse`); `src/retriever.py` (markdown split per `##` section, ChromaDB persistent collection with cosine space, `all-MiniLM-L6-v2`, K1=20, distance converted to similarity; indexing upserts only new/changed chunks by SHA-256 hash and deletes stale ones, so restarts don't re-embed or duplicate).
 - **Bugs/issues:** none found.
 - **Fixes:** none.
+
+## Phase 4: Re-ranker + gate
+- **Prompt:** "next"
+- **Generated:** `src/reranker.py` (CrossEncoder `ms-marco-MiniLM-L-6-v2`, stable sigmoid on raw logits, `gate()` at 0.55 on top score, K2=3, `rank_shifts()`); `tests/test_reranker.py` (Test 2 sigmoid bounds, Test 3 gating 0.42 vs 0.81).
+- **Bugs/issues:** none observed. Risk noted while writing: sentence-transformers' `CrossEncoder` can apply a default activation from the model config, so `predict()` is not guaranteed to return raw logits; sigmoid on top would double-squash.
+- **Fixes:** Constructed `CrossEncoder` with `activation_fn=torch.nn.Identity()` so sigmoid is applied exactly once.
