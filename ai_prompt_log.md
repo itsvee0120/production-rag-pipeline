@@ -88,3 +88,9 @@
 - **Generated:** `Dockerfile` (python:3.11-slim, uv, `uv sync --frozen --no-dev` from the lockfile, copies `src/` and `docs/`, Streamlit on 0.0.0.0:8501); `docker-compose.yml` (port 8501, `.env` loaded at runtime via `env_file`, named volumes for `chroma_db` and the Hugging Face model cache); `.dockerignore` (excludes `.env*`, local-only docs, `.git`, `.venv`, `chroma_db`, tests).
 - **Bugs/issues:** First `docker compose up --build` was extremely slow (image unpack step ran 4000+ s): the locked Linux `torch` wheel pulls multi-GB CUDA libraries the app never uses.
 - **Fixes:** Pinned `torch` to the PyTorch CPU index via `[tool.uv.sources]` / `[[tool.uv.index]]` in `pyproject.toml` and added `torch` as a direct dependency. Rebuild finished in ~6.5 min; container runs and the UI works. (Local environment issues along the way, not code: C: drive full, Docker disk moved to D:, port 8501 held by another project's container.)
+
+## Phase 13: README
+- **Prompt:** "next"
+- **Generated:** `README.md`: model/component table, Mermaid flowchart (rewriter -> K1=20 retrieval -> re-rank -> 0.55 gate -> internal or web synthesis), layout, install (uv, Python 3.11+), `.env` setup, local/Docker/test/calibration commands, test table, threshold calibration rationale from the Phase 11 results, AI audit summary, known limitations.
+- **Bugs/issues:** none found.
+- **Fixes:** none.
