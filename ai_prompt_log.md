@@ -37,3 +37,9 @@
 - **Fixes:** Rewriter switched to the Anthropic Messages API (`claude-haiku-5-5`, override via `ANTHROPIC_REWRITE_MODEL`); test now checks `ANTHROPIC_API_KEY`.
 - **Bug 2:** Test 1 failed: rewriter returned the original query. The fail-open `except` hid the cause; reproducing the exact call showed `TypeError: Messages.create() got an unexpected keyword argument 'temperature'` (installed `anthropic` SDK).
 - **Fix 2:** Removed `temperature=0` from the rewriter call.
+
+## Phase 6: Web fallback
+- **Prompt:** "next"
+- **Generated:** `src/web_fallback.py` (Tavily if `TAVILY_API_KEY` is set to a real value, else DuckDuckGo; top 3 results as `RetrievedChunk(source="web", chunk_id=URL)`; snippets sanitized: HTML unescaped and stripped, `<external_web_source>` look-alikes removed so a snippet can't break out of the delimiters, control chars removed, truncated to 800 chars; non-http URLs dropped; returns `[]` on search failure).
+- **Bugs/issues:** Smoke test with DuckDuckGo for "AWS us-east-1 outage root cause" returned irrelevant results (AWS homepage, console, American Welding Society) and a `duckduckgo_search` -> `ddgs` rename warning.
+- **Fixes:** User set a real `TAVILY_API_KEY`; no code change. Rerun returned 3 relevant outage write-ups with URLs.
